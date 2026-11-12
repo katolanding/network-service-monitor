@@ -1,0 +1,4 @@
+[
+  {"name": "Web local", "host": "127.0.0.1", "port": 8000},
+  {"name": "Servicio local de ejemplo", "host": "127.0.0.1", "port": 9999}
+]
