@@ -1,34 +1,62 @@
-# Network Service Monitor ![Python Tests](https://github.com/katolanding/network-service-monitor/actions/workflows/python-tests.yml/badge.svg)
+# Network Service Monitor
 
-Proyecto educativo de **redes / infraestructura TI** escrito en Python, sin dependencias externas. Comprueba si un servicio **TCP** expresamente indicado acepta conexiones y genera un reporte local JSON.
+[![Python Tests](https://github.com/katolanding/network-service-monitor/actions/workflows/python-tests.yml/badge.svg)](https://github.com/katolanding/network-service-monitor/actions/workflows/python-tests.yml)
 
-> **Alcance:** comprueba conectividad TCP, **no** garantiza que la aplicación web funcione correctamente. Usar solo con servicios propios o con autorización; no realiza descubrimiento automático ni barridos de puertos.
+Herramienta educativa de **redes e infraestructura TI**, escrita en Python y sin dependencias externas. Comprueba si servicios TCP explícitamente configurados aceptan una conexión y permite guardar un informe JSON.
 
-## Requisitos
+> **Alcance:** una conexión TCP exitosa no garantiza que la aplicación responda correctamente. Úsala solo con servicios propios o con autorización; no descubre hosts ni barre puertos.
 
-Python 3.10+.
+## Demostración local
 
-## Primer uso (Windows / PowerShell)
-
-Abre PowerShell en la carpeta que contiene `src` y `samples`:
+Requiere Python 3.10 o superior. Desde la carpeta del repositorio, abre PowerShell y ejecuta:
 
 ```powershell
-py -m unittest discover -s tests -v
-py src/monitor.py samples/targets.json --timeout 1
-py src/monitor.py samples/targets.json --json report.json
+py src/monitor.py samples/targets.json
 ```
 
-El archivo de ejemplo usa `127.0.0.1` (tu propio equipo). Un puerto sin servidor escuchando aparecerá como `unreachable`: **es esperable**.
+El archivo `samples/targets.json` configura dos destinos **en tu propio equipo** (`127.0.0.1`), en los puertos `8000` y `9999`. Si no hay servicios escuchando, es normal que ambos aparezcan como `unreachable`.
 
-Para obtener un resultado `reachable`, abre otra terminal y ejecuta:
+### Probar un servicio realmente accesible
+
+En una **segunda terminal**, inicia un servidor HTTP de prueba en tu equipo:
 
 ```powershell
 py -m http.server 8000 --bind 127.0.0.1
 ```
 
-Deja ese servidor funcionando y repite la consulta en la primera terminal. Después, detén el servidor con **Ctrl+C**.
+En la primera terminal, ejecuta nuevamente:
 
-## Archivo de destinos
+```powershell
+py src/monitor.py samples/targets.json --timeout 1
+```
+
+**Ejemplo ilustrativo de salida con el servidor local activo:**
+
+```text
+Services: 2 | Reachable: 1 | Unreachable: 1
+  Web local (127.0.0.1:8000): reachable [<latencia variable> ms]
+  Servicio local de ejemplo (127.0.0.1:9999): unreachable [<latencia variable> ms]
+```
+
+La latencia y el resultado del puerto `9999` dependen de los servicios que tengas abiertos. Para detener el servidor del puerto 8000, presiona **Ctrl+C** en la segunda terminal.
+
+### Exportar JSON
+
+```powershell
+py src/monitor.py samples/targets.json --json report.json
+```
+
+El programa permite hasta 30 destinos declarados y un tiempo máximo de espera de 10 segundos por destino.
+
+## Pruebas automatizadas
+
+```powershell
+py -m unittest discover -s tests -v
+```
+
+Incluye **siete pruebas unitarias** con conexiones simuladas (`unittest.mock`), por lo que el flujo de pruebas no requiere contactar servidores externos. La ejecución consultada el **12 de noviembre de 2026** terminó correctamente; la insignia indica el estado más reciente.
+
+## Archivo de ejemplo
 
 ```json
 [
@@ -37,34 +65,21 @@ Deja ese servidor funcionando y repite la consulta en la primera terminal. Despu
 ]
 ```
 
-El programa prueba únicamente los destinos indicados, con un máximo de 30 entradas y timeout máximo de 10 segundos por destino.
-
-## Qué aprenderás
-
-- Conectividad TCP y diferencia entre *puerto accesible* y *aplicación saludable*.
-- Manejo de excepciones de sockets en Python.
-- Validación de JSON y parámetros CLI.
-- Pruebas unitarias con `unittest` y `unittest.mock`.
-
 ## Estructura
 
 ```text
-src/monitor.py           # Lógica y CLI
-tests/test_monitor.py    # Siete pruebas automáticas sin tráfico real
-samples/targets.json    # Destinos locales ficticios
+src/monitor.py             Comprobación TCP, validación y CLI
+tests/test_monitor.py      Siete pruebas automatizadas
+samples/targets.json       Destinos locales de ejemplo
+.github/workflows/         Integración continua
 ```
 
-## Limitaciones y mejoras futuras
+## Limitaciones y futuras mejoras
 
-- Ejecuta comprobaciones secuenciales y puntuales; no programa monitoreo periódico.
-- No realiza HTTP GET ni verifica certificados TLS.
-- Los tiempos de conexión no representan el rendimiento total de un servicio.
-- Mejora propuesta: historial CSV para ver cambios de estado y gráfico de disponibilidad.
+- Comprueba destinos de forma secuencial, no hace monitoreo continuo.
+- No ejecuta peticiones HTTP ni valida certificados TLS.
+- El tiempo de conexión no representa el rendimiento completo del servicio.
+- Posible ampliación: historial local CSV y gráfico de disponibilidad.
 
-## Seguridad y privacidad
-
-No subas IP privadas de una organización, contraseñas ni capturas de redes internas sin permiso. El código no requiere privilegios de administrador ni credenciales.
-
-## Autoría y aprendizaje
-
-Proyecto de portafolio educativo preparado con asistencia de IA. Se recomienda ejecutarlo, entenderlo y documentar las mejoras personales antes de presentarlo en entrevistas.
+## Seguridad y autoría
+Proyecto de portafolio educativo con foco en aprendizaje de redes.
