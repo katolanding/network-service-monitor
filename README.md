@@ -1,4 +1,4 @@
-# Network Service Monitor
+# Network Service Monitor ![Python Tests](https://github.com/katolanding/network-service-monitor/actions/workflows/python-tests.yml/badge.svg)
 
 Proyecto educativo de **redes / infraestructura TI** escrito en Python, sin dependencias externas. Comprueba si un servicio **TCP** expresamente indicado acepta conexiones y genera un reporte local JSON.
 
